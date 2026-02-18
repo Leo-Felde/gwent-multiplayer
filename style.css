@@ -2184,7 +2184,7 @@ html {
 	z-index: 88;
   position: absolute;
   bottom: 120%;
-  right: 88.9%;
+  left: 50%;
   transform: translateX(-50%);
   background-color: #111;
   color: #DDD;

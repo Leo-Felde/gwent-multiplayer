@@ -103,7 +103,6 @@ socket.onmessage = async (event) => {
       const card = player_op.hand.cards.find(
         (c) => c.filename === data.card.filename,
       );
-      console.log("Oponent plays card", card);
 
       const splitRowName = data.row.split("-");
       let row;
@@ -140,6 +139,27 @@ socket.onmessage = async (event) => {
     case "useLeader":
       player_op.activateLeader();
       break;
+
+    case "skelligeAbility":
+      const playedCards = data.cards.map((c) => c.filename);
+
+      const cardCounts = playedCards.reduce((counts, filename) => {
+        counts[filename] = (counts[filename] || 0) + 1;
+        return counts;
+      }, {});
+
+      const graveCards = [];
+      Object.entries(cardCounts).forEach(([filename, neededCount]) => {
+        const matchingCards = player_op.grave.findCards(
+          (gc) => gc.filename === filename,
+        );
+        const cardsToTake = matchingCards.slice(0, neededCount);
+        graveCards.push(...cardsToTake);
+      });
+
+      await Promise.all(
+        graveCards.map((card) => board.toRow(card, player_op.grave)),
+      );
   }
 };
 
@@ -556,9 +576,11 @@ class Grave extends CardContainer {
   removeCardElement(card, index) {
     card.elem.style.left = "";
     super.removeCardElement(card, index);
-    for (let i = index; i < this.cards.length; ++i) {
-      this.setCardOffset(this.cards[i], i);
-    }
+    setTimeout(() => {
+      for (let i = index; i < this.cards.length; ++i) {
+        this.setCardOffset(this.cards[i], i);
+      }
+    }, 500);
   }
 
   // Offsets the card element in the deck
@@ -1775,7 +1797,6 @@ class UI {
       const playedCard = removeCircularReferences(this.previewCard);
       const targetCard = removeCircularReferences(card);
 
-      console.log("You played the card", this.previewCard);
       socket.send(
         JSON.stringify({
           type: "play",
@@ -1812,7 +1833,6 @@ class UI {
       this.previewCard || oponentCard,
     );
 
-    console.log("You played the card", this.previewCard);
     if (this.previewCard.name === "Decoy") return;
 
     socket.send(
@@ -1936,6 +1956,7 @@ class UI {
     this.notif_elem.children[0].id = "notif-" + name;
     await fadeIn(this.notif_elem, fadeSpeed);
     await sleep(duration);
+    await sleep(200);
     await fadeOut(this.notif_elem, fadeSpeed, duration - fadeSpeed);
   }
 
