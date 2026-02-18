@@ -29,7 +29,7 @@ socket.onmessage = async (event) => {
       isOponentReadyElem.classList.remove("hidden");
       // sends the oponent which faction you're playing with
       socket.send(
-        JSON.stringify({ type: "opChangeFaction", faction: dm.faction })
+        JSON.stringify({ type: "opChangeFaction", faction: dm.faction }),
       );
       break;
     case "sessionDeleted":
@@ -67,9 +67,8 @@ socket.onmessage = async (event) => {
 
     case "opChangeFaction":
       console.log("oponent has changed his faction");
-      oponentReadyElem.querySelector(
-        "img"
-      ).src = `img/icons/deck_shield_${data.faction}.png`;
+      oponentReadyElem.querySelector("img").src =
+        `img/icons/deck_shield_${data.faction}.png`;
       break;
 
     case "unReady":
@@ -82,7 +81,7 @@ socket.onmessage = async (event) => {
       break;
 
     // Initializes Oponent's updated Hand and Deck
-    case "initial_reDraw":
+    case "deck_hand_ready":
       data.deck = fillCardElements(data.deck, player_op);
       data.hand = fillCardElements(data.hand, player_op);
 
@@ -102,7 +101,7 @@ socket.onmessage = async (event) => {
     // Game - Oponent plays card
     case "play":
       const card = player_op.hand.cards.find(
-        (c) => c.filename === data.card.filename
+        (c) => c.filename === data.card.filename,
       );
       console.log("Oponent plays card", card);
 
@@ -111,7 +110,7 @@ socket.onmessage = async (event) => {
       if (splitRowName.length > 1) {
         const targetRow = splitRowName[0] === "self" ? "target" : "self";
         row = board.row.find(
-          (r) => r.elem_parent.id === `${targetRow}-${splitRowName[1]}`
+          (r) => r.elem_parent.id === `${targetRow}-${splitRowName[1]}`,
         );
       } else {
         row = data.row;
@@ -119,7 +118,7 @@ socket.onmessage = async (event) => {
 
       if (data.card.filename === "decoy") {
         const replacedCard = row.cards.find(
-          (bc) => bc.filename === data.target.filename
+          (bc) => bc.filename === data.target.filename,
         );
         if (!replacedCard) return;
 
@@ -147,7 +146,7 @@ socket.onmessage = async (event) => {
 function fillCardElements(cards, player) {
   for (let i = 0; i < cards.length; i++) {
     const cardFromDict = card_dict.find(
-      (dict) => dict.filename === cards[i].filename
+      (dict) => dict.filename === cards[i].filename,
     );
     cards[i] = new Card(cardFromDict, player);
   }
@@ -177,7 +176,7 @@ class Player {
     this.grave = new Grave(document.getElementById("grave-" + this.tag));
     this.deck = new Deck(
       deck.faction,
-      document.getElementById("deck-" + this.tag)
+      document.getElementById("deck-" + this.tag),
     );
     this.deck_data = deck;
 
@@ -196,7 +195,7 @@ class Player {
       .getElementById("stats-" + this.tag)
       .getElementsByClassName("profile-img")[0].children[0].children[0];
     let x = document.querySelector(
-      "#stats-" + this.tag + " .profile-img > div > div"
+      "#stats-" + this.tag + " .profile-img > div > div",
     );
     x.style.backgroundImage = iconURL("deck_shield_" + deck.faction);
   }
@@ -270,7 +269,7 @@ class Player {
   async playScorch(card) {
     await this.playCardAction(
       card,
-      async () => await ability_dict["scorch"].activated(card)
+      async () => await ability_dict["scorch"].activated(card),
     );
   }
 
@@ -278,7 +277,7 @@ class Player {
   async playCardToRow(card, row) {
     await this.playCardAction(
       card,
-      async () => await board.moveTo(card, row, this.hand)
+      async () => await board.moveTo(card, row, this.hand),
     );
   }
 
@@ -348,7 +347,7 @@ class Player {
     this.elem_leader.addEventListener(
       "click",
       async () => await ui.viewCard(this.leader),
-      false
+      false,
     );
   }
 
@@ -372,7 +371,7 @@ class Player {
       this.elem_leader.addEventListener(
         "click",
         async () => await ui.viewCard(this.leader),
-        false
+        false,
       );
     }
 
@@ -442,7 +441,7 @@ class CardContainer {
       throw "Cannot draw from empty " + this.constructor.name;
     card = this.cards.splice(
       isNumber(card) ? card : this.cards.indexOf(card),
-      1
+      1,
     )[0];
     this.removeCardElement(card, index ? index : 0);
     this.resize();
@@ -585,9 +584,9 @@ class Deck extends CardContainer {
     this.initialize(
       card_id_list.reduce(
         (a, c) => a.concat(clone(c.count, card_dict[c.index])),
-        []
+        [],
       ),
-      player
+      player,
     );
     function clone(n, elem) {
       for (var i = 0, a = []; i < n; ++i) a.push(elem);
@@ -720,7 +719,7 @@ class Row extends CardContainer {
       "click",
       () => ui.selectRow(this),
       false,
-      true
+      true,
     );
     this.elem.addEventListener("mouseover", function () {
       tocar("card", false);
@@ -799,8 +798,8 @@ class Row extends CardContainer {
       overlay == "fog" || overlay == "rain"
         ? overlay
         : overlay == "frost"
-        ? "cold"
-        : "";
+          ? "cold"
+          : "";
     if (som != "") tocar(som, false);
     this.effects.weather = true;
     this.elem_parent
@@ -855,7 +854,7 @@ class Row extends CardContainer {
     if (isNumber(bond) && bond > 1) total *= Number(bond);
     total += Math.max(
       0,
-      this.effects.morale + (card.abilities.includes("morale") ? -1 : 0)
+      this.effects.morale + (card.abilities.includes("morale") ? -1 : 0),
     );
     if (this.effects.horn - (card.abilities.includes("horn") ? 1 : 0) > 0)
       total *= 2;
@@ -877,7 +876,7 @@ class Row extends CardContainer {
         this.maxUnits().map(async (c) => {
           await c.animate("scorch", true, false);
           await board.toGrave(c, this);
-        })
+        }),
       );
   }
 
@@ -948,7 +947,7 @@ class Weather extends CardContainer {
       this.changeWeather(
         card,
         (x) => ++this.types[x].count === 1,
-        (r, t) => r.addOverlay(t.name)
+        (r, t) => r.addOverlay(t.name),
       );
       for (let i = this.cards.length - 2; i >= 0; --i) {
         if (card.name === this.cards[i].name) {
@@ -968,7 +967,7 @@ class Weather extends CardContainer {
     this.changeWeather(
       card,
       (x) => --this.types[x].count === 0,
-      (r, t) => r.removeOverlay(t.name)
+      (r, t) => r.removeOverlay(t.name),
     );
     return card;
   }
@@ -988,7 +987,7 @@ class Weather extends CardContainer {
     await Promise.all(
       this.cards
         .map((c, i) => this.cards[this.cards.length - i - 1])
-        .map((c) => board.toGrave(c, this))
+        .map((c) => board.toGrave(c, this)),
     );
   }
 
@@ -1097,7 +1096,7 @@ class Board {
             ' sent to incorrect row "' +
             row_name +
             '" by ' +
-            card.holder.name
+            card.holder.name,
         );
     }
   }
@@ -1119,7 +1118,7 @@ class Game {
     this.customize_elem.addEventListener(
       "click",
       () => this.returnToCustomization(),
-      false
+      false,
     );
     this.replay_elem.addEventListener("click", () => this.restartGame(), false);
     this.reset();
@@ -1193,7 +1192,7 @@ class Game {
       [...Array(10).keys()].map(async () => {
         await player_me.deck.draw(player_me.hand);
         await player_op.deck.draw(player_op.hand);
-      })
+      }),
     );
 
     await this.runEffects(this.gameStart);
@@ -1271,16 +1270,21 @@ class Game {
       (c) => true,
       true,
       true,
-      "Choose up to 2 cards to redraw."
+      "Choose up to 2 cards to redraw.",
     );
     ui.enablePlayer(false);
 
     socket.send(
       JSON.stringify({
-        type: "initial_reDraw",
+        type: "finished_redraw",
+      }),
+    );
+    socket.send(
+      JSON.stringify({
+        type: "deck_hand_ready",
         hand: removeCircularReferences(player_me.hand.cards),
         deck: removeCircularReferences(player_me.deck.cards),
-      })
+      }),
     );
   }
 
@@ -1543,8 +1547,8 @@ class Card {
       literais.indexOf(name) > -1
         ? literais[literais.indexOf(name)]
         : temSom.indexOf(name) > -1
-        ? guia[name]
-        : "";
+          ? guia[name]
+          : "";
     if (som != "") tocar(som, false);
 
     if (name === "scorch") {
@@ -1697,7 +1701,7 @@ class UI {
     this.toggleMusic_elem.addEventListener(
       "click",
       () => this.toggleMusic(),
-      false
+      false,
     );
   }
 
@@ -1779,7 +1783,7 @@ class UI {
           card: playedCard,
           row: nomeColuna,
           target: targetCard,
-        })
+        }),
       );
 
       this.hidePreview(card);
@@ -1805,7 +1809,7 @@ class UI {
         ? this.lastRow.elem.id
         : this.lastRow.elem_parent.id;
     const playedCard = removeCircularReferences(
-      this.previewCard || oponentCard
+      this.previewCard || oponentCard,
     );
 
     console.log("You played the card", this.previewCard);
@@ -1817,7 +1821,7 @@ class UI {
         player: playerId,
         card: playedCard,
         row: nomeColuna,
-      })
+      }),
     );
 
     let card = this.previewCard || oponentCard;
@@ -1924,8 +1928,8 @@ class UI {
       temSom.indexOf(name) > -1
         ? guia2[name]
         : name == "round-start" && game.roundHistory.length == 0
-        ? "round1_start"
-        : "";
+          ? "round1_start"
+          : "";
     if (som != "") tocar(som, false);
 
     const fadeSpeed = 150;
@@ -1964,7 +1968,7 @@ class UI {
     predicate,
     bSort,
     bQuit,
-    title
+    title,
   ) {
     let carousel = new Carousel(
       container,
@@ -1973,7 +1977,7 @@ class UI {
       predicate,
       bSort,
       bQuit,
-      title
+      title,
     );
     if (Carousel.curr === undefined || Carousel.curr === null) carousel.start();
     else {
@@ -2092,7 +2096,7 @@ class Carousel {
     predicate,
     bSort,
     bExit = false,
-    title
+    title,
   ) {
     if (count <= 0 || !container || !action || container.cards.length === 0)
       return;
@@ -2112,7 +2116,7 @@ class Carousel {
       Carousel.elem.children[0].addEventListener(
         "click",
         () => Carousel.curr.cancel(),
-        false
+        false,
       );
     }
     this.elem = Carousel.elem;
@@ -2129,12 +2133,12 @@ class Carousel {
     if (!this.elem) return;
     this.indices = this.container.cards.reduce(
       (a, c, i) => (!this.predicate || this.predicate(c) ? a.concat([i]) : a),
-      []
+      [],
     );
     if (this.indices.length <= 0) return this.exit();
     if (this.bSort)
       this.indices.sort((a, b) =>
-        Card.compare(this.container.cards[a], this.container.cards[b])
+        Card.compare(this.container.cards[a], this.container.cards[b]),
       );
 
     this.update();
@@ -2179,13 +2183,13 @@ class Carousel {
     } else if (actionString.includes("board.toWeather")) {
       setTimeout(() => {
         socket.send(
-          JSON.stringify({ type: "weatherDraw", card: resp.filename })
+          JSON.stringify({ type: "weatherDraw", card: resp.filename }),
         );
       }, 1000);
     } else if (actionString.includes("board.toGrave")) {
       setTimeout(() => {
         socket.send(
-          JSON.stringify({ type: "removeCardHand", index: this.index })
+          JSON.stringify({ type: "removeCardHand", index: this.index }),
         );
       }, 1000);
     } else if (actionString.includes("board.toHand")) {
@@ -2216,7 +2220,7 @@ class Carousel {
   update() {
     this.indices = this.container.cards.reduce(
       (a, c, i) => (!this.predicate || this.predicate(c) ? a.concat([i]) : a),
-      []
+      [],
     );
     if (this.index >= this.indices.length) this.index = this.indices.length - 1;
     for (let i = 0; i < this.previews.length; i++) {
@@ -2224,7 +2228,7 @@ class Carousel {
       if (curr >= 0 && curr < this.indices.length) {
         let card = this.container.cards[this.indices[curr]];
         this.previews[i].style.backgroundImage = largeURL(
-          card.faction + "_" + card.filename
+          card.faction + "_" + card.filename,
         );
         this.previews[i].classList.remove("hide");
         this.previews[i].classList.remove("noclick");
@@ -2236,7 +2240,7 @@ class Carousel {
     }
     ui.setDescription(
       this.container.cards[this.indices[this.index]],
-      this.desc
+      this.desc,
     );
   }
 
@@ -2319,7 +2323,7 @@ class DeckMaker {
     this.leader_elem.children[1].addEventListener(
       "click",
       () => this.selectLeader(),
-      false
+      false,
     );
 
     this.faction = "realms";
@@ -2337,7 +2341,7 @@ class DeckMaker {
     this.change_elem.addEventListener(
       "click",
       () => this.selectFaction(),
-      false
+      false,
     );
 
     document
@@ -2365,14 +2369,14 @@ class DeckMaker {
       }
 
       socket.send(
-        JSON.stringify({ type: "opChangeFaction", faction: faction_name })
+        JSON.stringify({ type: "opChangeFaction", faction: faction_name }),
       );
     }
 
     this.elem.getElementsByTagName("h1")[0].innerHTML =
       factions[faction_name].name;
     this.elem.getElementsByTagName("h1")[0].style.backgroundImage = iconURL(
-      "deck_shield_" + faction_name
+      "deck_shield_" + faction_name,
     );
     document.getElementById("faction-description").innerHTML =
       factions[faction_name].description;
@@ -2383,7 +2387,7 @@ class DeckMaker {
     if (!this.leader || this.faction !== faction_name) {
       this.leader = this.leaders[0];
       this.leader_elem.children[1].style.backgroundImage = largeURL(
-        this.leader.card.deck + "_" + this.leader.card.filename
+        this.leader.card.deck + "_" + this.leader.card.filename,
       );
     }
     this.faction = faction_name;
@@ -2397,7 +2401,7 @@ class DeckMaker {
   setLeader(index) {
     this.leader = this.leaders.find((l) => l.index == index);
     this.leader_elem.children[1].style.backgroundImage = largeURL(
-      this.leader.card.deck + "_" + this.leader.card.filename
+      this.leader.card.deck + "_" + this.leader.card.filename,
     );
   }
 
@@ -2410,7 +2414,7 @@ class DeckMaker {
       .filter(
         (p) =>
           [faction, "neutral", "weather", "special"].includes(p.card.deck) &&
-          p.card.row !== "leader"
+          p.card.row !== "leader",
       );
 
     cards.sort(function (id1, id2) {
@@ -2431,7 +2435,7 @@ class DeckMaker {
         p.index,
         Number.parseInt(p.card.count) - count,
         this.bank_elem,
-        this.bank
+        this.bank,
       );
       this.makePreview(p.index, count, this.deck_elem, this.deck);
     });
@@ -2443,7 +2447,7 @@ class DeckMaker {
 
     let elem = document.createElement("div");
     elem.style.backgroundImage = largeURL(
-      card_data.deck + "_" + card_data.filename
+      card_data.deck + "_" + card_data.filename,
     );
     elem.classList.add("card-lg");
     let count = document.createElement("div");
@@ -2525,12 +2529,12 @@ class DeckMaker {
         let data = c.cards[i].data;
         this.leader = data;
         this.leader_elem.children[1].style.backgroundImage = largeURL(
-          data.card.deck + "_" + data.card.filename
+          data.card.deck + "_" + data.card.filename,
         );
       },
       () => true,
       false,
-      true
+      true,
     );
     Carousel.curr.index = index;
     Carousel.curr.update();
@@ -2550,7 +2554,7 @@ class DeckMaker {
     });
     let index = container.cards.reduce(
       (a, c, i) => (c.filename === this.faction ? i : a),
-      0
+      0,
     );
     ui.queueCarousel(
       container,
@@ -2560,13 +2564,13 @@ class DeckMaker {
         let change = this.setFaction(card_faction_name);
         if (!change) return;
         const faction_premade_deck = premade_deck.find(
-          (d) => d.faction === card_faction_name
+          (d) => d.faction === card_faction_name,
         );
 
         if (faction_premade_deck) {
           if (!faction_premade_deck?.cards[0].index)
             faction_premade_deck.cards = faction_premade_deck.cards.map(
-              (c) => ({ index: c[0], count: c[1] })
+              (c) => ({ index: c[0], count: c[1] }),
             );
           this.makeBank(card_faction_name, faction_premade_deck.cards);
         } else this.makeBank(card_faction_name);
@@ -2574,7 +2578,7 @@ class DeckMaker {
       },
       () => true,
       false,
-      true
+      true,
     );
     Carousel.curr.index = index;
     Carousel.curr.update();
@@ -2753,7 +2757,7 @@ class DeckMaker {
     if (warning && !confirm(warning + "\n\nContinue importing deck?")) return;
     this.setFaction(deck.faction, true);
     socket.send(
-      JSON.stringify({ type: "opChangeFaction", faction: deck.faction })
+      JSON.stringify({ type: "opChangeFaction", faction: deck.faction }),
     );
     if (
       card_dict[deck.leader].row === "leader" &&
@@ -2761,7 +2765,7 @@ class DeckMaker {
     ) {
       this.leader = this.leaders.find((c) => c.index === deck.leader);
       this.leader_elem.children[1].style.backgroundImage = largeURL(
-        this.leader.card.deck + "_" + this.leader.card.filename
+        this.leader.card.deck + "_" + this.leader.card.filename,
       );
     }
     this.makeBank(deck.faction, cards);
@@ -2974,7 +2978,7 @@ function removeCircularReferences(obj) {
         seen.add(value);
       }
       return value;
-    })
+    }),
   );
 }
 

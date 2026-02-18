@@ -53,7 +53,7 @@ wss.on("connection", (ws) => {
         if (session) {
           // replace the old socket placeholder (if present) with this ws
           const idx = session.players.findIndex(
-            (p) => p.playerId === ws.playerId
+            (p) => p.playerId === ws.playerId,
           );
           if (idx !== -1) {
             session.players[idx] = ws;
@@ -63,7 +63,7 @@ wss.on("connection", (ws) => {
           }
           ws.sessionCode = d.code;
           console.log(
-            `# Player ${ws.playerId} reconnected to Session ${d.code}`
+            `# Player ${ws.playerId} reconnected to Session ${d.code}`,
           );
         }
       }
@@ -109,7 +109,7 @@ wss.on("connection", (ws) => {
 
       console.log(`# Player ${ws.playerId} left Session ${sessionCode}`);
       sessions[sessionCode].players = sessions[sessionCode].players.filter(
-        (player) => player !== ws
+        (player) => player !== ws,
       );
       return;
     }
@@ -124,13 +124,13 @@ wss.on("connection", (ws) => {
 
         sessions[sessionCode].players.forEach((player, index) => {
           player.send(
-            JSON.stringify({ type: "sessionReady", player: index + 1 })
+            JSON.stringify({ type: "sessionReady", player: index + 1 }),
           );
         });
       } else {
         ws.send(JSON.stringify({ type: "sessionInvalid" }));
         console.log(
-          `# Player ${ws.playerId} attempted to join invalid Session ${sessionCode}`
+          `# Player ${ws.playerId} attempted to join invalid Session ${sessionCode}`,
         );
       }
       return;
@@ -152,20 +152,20 @@ wss.on("connection", (ws) => {
             JSON.stringify({
               type: "coinToss",
               player: sessions[ws.sessionCode].firstPlayer,
-            })
+            }),
           );
         });
       }
       return;
     }
 
-    if (data.type === "initial_reDraw") {
+    if (data.type === "finished_redraw") {
       if (ws.sessionCode && sessions[ws.sessionCode]) {
         const session = sessions[ws.sessionCode];
         session.playersReady += 1;
 
         console.log(
-          `# Players ready in session ${ws.sessionCode}: ${session.playersReady}`
+          `# Players ready in session ${ws.sessionCode}: ${session.playersReady}`,
         );
 
         if (session.playersReady === 2) {
@@ -205,7 +205,7 @@ wss.on("connection", (ws) => {
             other.send(JSON.stringify({ type: "sessionDeleted" }));
           }
           console.log(
-            `# Session ${ws.sessionCode} deleted due to no reconnection`
+            `# Session ${ws.sessionCode} deleted due to no reconnection`,
           );
           // cleanup any disconnected entries for this session
           Object.keys(disconnectedPlayers).forEach((pid) => {
@@ -227,13 +227,13 @@ wss.on("connection", (ws) => {
           JSON.stringify({
             type: "opponentDisconnected",
             playerId: ws.playerId,
-          })
+          }),
         );
         otherPlayer.send(JSON.stringify({ type: "sessionUnready" }));
       }
 
       console.log(
-        `# Player ${ws.playerId} disconnected from Session ${ws.sessionCode}. Waiting for reconnection...`
+        `# Player ${ws.playerId} disconnected from Session ${ws.sessionCode}. Waiting for reconnection...`,
       );
     }
 
