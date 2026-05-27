@@ -1,4 +1,4 @@
-const websocketAddress = `ws://${CLIENT_CONFIG}`;
+const websocketAddress = `wss://${CLIENT_CONFIG}`;
 
 let socket = new WebSocket(websocketAddress);
 const noServerWarningElement = document.getElementById("no-server");
