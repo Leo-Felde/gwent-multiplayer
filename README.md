@@ -7,13 +7,14 @@ This is a **multiplayer-only** fork using node.js for the server. Although I hav
 Decoys, Spies, most of the leader's abilities and medics respawning medics respawning whatever seem to all be working properly.
 
 ### Currently running on this github page
-The node server is runing elsewhere so it might break or might not, it's a free hosting so don't expect much, still here you go
+The node server is runing elsewhere so it might break or might not, it's a free hosting so don't expect much.
+If there is a message "No server connection" please wait a few seconds for it to connect and refresh the page if the issue persists.
 https://leo-felde.github.io/gwent-multiplayer/
 
 #### Known issues:
 ###### feel free to report any bugs or make suggestions.
 <ul>
-  <li>Desync on Pick X Random Card(s) events, common to leader abilities</li>
+  <li>None currently</li>
 </ul>  
 
 ## How to play multiplayer
