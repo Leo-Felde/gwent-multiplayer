@@ -377,7 +377,19 @@ var ability_dict = {
 			} else
 				Carousel.curr.exit();
 			await ui.queueCarousel(hand, 2, (c,i) => board.toGrave(c.cards[i], c), () => true);
-			await ui.queueCarousel(deck, 1, (c,i) => board.toHand(c.cards[i], deck), () => true, true);
+			await ui.queueCarousel(deck, 1, (c,i) => {
+				let card = c.cards[i];
+				deck.removeCard(card);
+				card.holder.hand.cards.push(card);
+				card.holder.hand.addCardElement(card, card.holder.hand.cards.length - 1);
+				card.holder.hand.resize();
+        socket.send(
+          JSON.stringify({
+            type: "addCardHand",
+            index: i,
+          }),
+        );
+			}, () => true, true);
 		},
 		weight: (card, ai) => {
 			let cards = ai.discardOrder(card).splice(0,2).filter(c => c.basePower < 7);
