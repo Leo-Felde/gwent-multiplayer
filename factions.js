@@ -24,17 +24,26 @@ var factions = {
     name: "Monsters",
     factionAbility: (player) =>
       game.roundEnd.push(() => {
-        let units = board.row
-          .filter((r, i) => (player === player_me) ^ (i < 3))
-          .reduce((a, r) => r.cards.filter((c) => c.isUnit()).concat(a), []);
-        if (units.length === 0) return;
-        let card = units[randomInt(units.length)];
-        card.noRemove = true;
-        game.roundStart.push(async () => {
-          await ui.notification("monsters", 1200);
-          delete card.noRemove;
-          return true;
-        });
+        if (player === player_me) {
+          let units = board.row
+            .filter((r, i) => (player === player_me) ^ (i < 3))
+            .reduce((a, r) => r.cards.filter((c) => c.isUnit()).concat(a), []);
+          if (units.length === 0) return;
+
+          let card = units[randomInt(units.length)];
+          socket.send(
+            JSON.stringify({
+              type: "monstersKeepCard",
+              card: removeCircularReferences(card),
+            }),
+          );
+          card.noRemove = true;
+          game.roundStart.push(async () => {
+            await ui.notification("monsters", 1200);
+            delete card.noRemove;
+            return true;
+          });
+        }
         return false;
       }),
     description: "Keeps a random Unit Card out after each round.",

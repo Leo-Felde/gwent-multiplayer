@@ -160,6 +160,21 @@ socket.onmessage = async (event) => {
       await Promise.all(
         graveCards.map((card) => board.toRow(card, player_op.grave)),
       );
+
+    case "monstersKeepCard":
+      console.log("monstersKeepCard", data.card);
+      console.log(board.row);
+      const keptCard = board
+        .getRow(data.card, data.card.row, player_op)
+        .findCard((c) => c.filename === data.card.filename);
+      if (!keptCard) return;
+      console.log("keptCard", keptCard);
+      keptCard.noRemove = true;
+      game.roundStart.push(async () => {
+        await ui.notification("monsters", 1200);
+        delete keptCard.noRemove;
+        return true;
+      });
   }
 };
 
@@ -1043,6 +1058,18 @@ class Board {
     return player === player_me ? player_op : player_me;
   }
 
+  // Finds the first card by a given filename; If none are found returns null
+  findCardByName(filename, targetRow = null) {
+    let foundCard = null;
+    for (const row of board.row) {
+      if (targetRow !== null && targetRow !== row.elem_parent.id) continue;
+      keptCard = row.cards.find((bc) => bc.filename === data.card.filename);
+      if (foundCard) break;
+    }
+
+    return foundCard ?? null;
+  }
+
   // Sends and translates a card from the source to the Deck of the card's holder
   async toDeck(card, source) {
     tocar("discard", false);
@@ -1335,6 +1362,7 @@ class Game {
 
   // Starts a new turn. Enables client interraction in client's turn.
   async startTurn() {
+    console.log("---------------\nstartTurn");
     await this.runEffects(this.turnStart);
     if (!this.currPlayer.opponent().passed) {
       this.currPlayer = this.currPlayer.opponent();
@@ -1381,7 +1409,9 @@ class Game {
     this.roundHistory.push(verdict);
 
     await this.runEffects(this.roundEnd);
-
+    if (player_op.deck.faction === "monsters") {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
     board.row.forEach((row) => row.clear());
     weather.clearWeather();
 

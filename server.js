@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const { WS_HOST, WS_PORT } = require('./config.js');
+const { WS_HOST, WS_PORT } = require("./config.js");
 
 const wss = new WebSocket.Server({ port: WS_PORT, host: WS_HOST });
 
