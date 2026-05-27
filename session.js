@@ -1,4 +1,6 @@
-let socket = new WebSocket("ws://localhost:8080");
+const websocketAddress = `ws://${WS_HOST}:${WS_PORT}`
+
+let socket = new WebSocket(websocketAddress);
 const noServerWarningElement = document.getElementById("no-server");
 
 const btnCreateElem = document.getElementById("create-game");
@@ -48,7 +50,7 @@ function reconnectWebSocket() {
   );
 
   reconnectTimeout = setTimeout(() => {
-    socket = new WebSocket("ws://localhost:8080");
+    socket = new WebSocket(websocketAddress);
     attachSocketListeners();
   }, reconnectDelay);
 }

@@ -8,7 +8,7 @@ Decoys, Spies, most of the leader's abilities and medics respawning medics respa
 #### Known issues:
 ###### feel free to report any bugs or make suggestions.
 <ul>
-  <li>Various Leader abilities Desync inssues</li>
+  <li>Desync on Pick X Random Card(s) events, common to leader abilities</li>
 </ul>  
 
 ## How to play multiplayer
@@ -23,14 +23,14 @@ This project requires [Node.js](https://nodejs.org/en/download) to run and insta
 #### Run the server
 Open a command terminal in the project's root and run `node server.js`. After a few seconds you should see a message "## Server is up and running ##", if you don't see this message something went wrong, make sure you have node.js intalled.
 
-#### Connect clients to the same server
-in `gwent.js` look for `const socket = new WebSocket('ws://localhost:8080');`. Change the value inside `WebSocket('## here ##')` to the remote server address.
+#### Configuring the server
+in `config.js` change the values of `WS_HOST` and `WS_PORT` to the remote server address, both players must connect to the same server in order to play together.
 
-If the connection is successful you should see the options to Create a game or Join a game. Creating a game will give you a session ID which should be used to 
+If the connection is successful you should see the options to Create a game or Join a game. Otherwise there should be a warning about "No server connection".
+Creating a game will give you a session ID which should be used to connect clients to the same game.
 
 ## Rules
 The game is played in the same way as the original. The player aims to win two of three rounds, where victory within a given round is determined by whoever scores the most points. 
-
 
 #### Cards and Points
 Points are obtained by placing down unit cards, each with their corresponding values. Some unit cards have special effects as denoted by a symbol on their left side. The cards and their effects can be examined by selecting them or the row they have been palced on. The game also includes a nubmer of special cards that apply effects like negative weather conditions or bosting card points when played.

@@ -1,7 +1,7 @@
 const WebSocket = require("ws");
+const { WS_HOST, WS_PORT } = require('./config.js');
 
-const PORT = process.env.PORT || 8080;
-const wss = new WebSocket.Server({ port: PORT });
+const wss = new WebSocket.Server({ port: WS_PORT, host: WS_HOST });
 
 let sessions = {};
 let players = [];
