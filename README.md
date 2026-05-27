@@ -1,9 +1,14 @@
 # gwent-classic
+[![](https://img.shields.io/badge/Live_Demo-Play_Now!-yellow?&logo=javascript)](https://leo-felde.github.io/gwent-multiplayer/)
 ![cover](https://user-images.githubusercontent.com/26311830/116256903-f1599b00-a7b6-11eb-84a1-16dcb5c9bfc6.jpg)
 
 This is a **multiplayer-only** fork using node.js for the server. Although I have not tested it extensevely, the server *should* allow for multiple simultaneous games.
 
 Decoys, Spies, most of the leader's abilities and medics respawning medics respawning whatever seem to all be working properly.
+
+### Currently running on this github page
+The node server is runing elsewhere so it might break or might not, it's a free hosting so don't expect much, still here you go
+https://leo-felde.github.io/gwent-multiplayer/
 
 #### Known issues:
 ###### feel free to report any bugs or make suggestions.
@@ -15,16 +20,17 @@ Decoys, Spies, most of the leader's abilities and medics respawning medics respa
 Either you or a friend must host the server. I cannot afford to run a public one but there are some very easy options out there such as [Glitch](https://glitch.com), [Fly.io](https://fly.io/docs/js/) and [Render](https://render.com/), you could also host it locally. 
 
 ## How to host a server
-If you're just going to connect, skip to the next part.
+If you're just going to connect, skip to "3. Configuring the addresses"
 
-#### Install dependencies
+#### 1. Install dependencies
 This project requires [Node.js](https://nodejs.org/en/download) to run and install dependencies.<br> After having Node.js installed open a command terminal in the project's root (where index.html is located, in windows 11 right clicking should display an option to open in terminal) and run `npm install`
 
-#### Run the server
+#### 2. Run the server
 Open a command terminal in the project's root and run `node server.js`. After a few seconds you should see a message "## Server is up and running ##", if you don't see this message something went wrong, make sure you have node.js intalled.
 
-#### Configuring the server
-in `config.js` change the values of `WS_HOST` and `WS_PORT` to the remote server address, both players must connect to the same server in order to play together.
+#### 3. Configuring the addresses
+<b>(Host)</b> in `server.js` change the values of `WS_HOST` and `WS_PORT` to the desired server address, normally you should change the address to 0.0.0.0 on a remote host.<br/>
+<b>(Client)</b> in `config.js` change the value of `CLIENT_CONFIG` to the server address. Note that on a remote server you should also change the configuration to segure on the file `session.js` simply change `const websocketAddress = ws://${CLIENT_CONFIG};` to `const websocketAddress = wss://${CLIENT_CONFIG};` (notice and adition "s" in the wss://)
 
 If the connection is successful you should see the options to Create a game or Join a game. Otherwise there should be a warning about "No server connection".
 Creating a game will give you a session ID which should be used to connect clients to the same game.
