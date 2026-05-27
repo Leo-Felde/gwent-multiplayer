@@ -129,9 +129,7 @@ var ability_dict = {
 			if (units.length <= 0)
 				return;
 			let wrapper = {card : null};
-			if (game.randomRespawn) {
-				 wrapper.card = grave.findCardsRandom(c => c.isUnit())[0];
-			} else if (card.holder.controller instanceof ControllerOponent) {
+			if (card.holder.controller instanceof ControllerOponent) {
 				console.log("Oponent has played a medic, wait for him to chose which card to respawn")
 				// Wait for the oponent to choose which card to revive
 				wrapper.card = await new Promise((resolve) => {
@@ -147,8 +145,15 @@ var ability_dict = {
 					}
 					socket.addEventListener('message', handleMessage);
 				});
-			} else
+			} else if (game.randomRespawn) {
+				wrapper.card = grave.findCardsRandom(c => c.isUnit())[0];
+				setTimeout(() => {
+        	socket.send(JSON.stringify({ type: "medicDraw", card: wrapper.card.filename }));
+					// too long? needed to make sure the opponent's websocket waits for this event to avoid breaking
+      	}, 3000);
+			} else {
 				await ui.queueCarousel(card.holder.grave, 1, (c, i) => wrapper.card=c.cards[i], c => c.isUnit(), true);
+			}
 			let res = wrapper.card;
 			grave.removeCard(res);
 			grave.addCard(res);
