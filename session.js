@@ -1,4 +1,4 @@
-const websocketAddress = `ws://${WS_HOST}:${WS_PORT}`
+const websocketAddress = `ws://${CLIENT_CONFIG}`;
 
 let socket = new WebSocket(websocketAddress);
 const noServerWarningElement = document.getElementById("no-server");
@@ -46,7 +46,7 @@ function reconnectWebSocket() {
 
   reconnectAttempts++;
   console.log(
-    `Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`
+    `Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`,
   );
 
   reconnectTimeout = setTimeout(() => {
@@ -61,7 +61,7 @@ function attachSocketListeners() {
       JSON.stringify({
         type: "connect",
         id: playerId,
-      })
+      }),
     );
     console.log("Connected to the server");
     reconnectAttempts = 0;
@@ -162,13 +162,13 @@ function cancelSession() {
   if (createdSessionId) {
     console.log("Cancelled Session of code: " + createdSessionId);
     socket.send(
-      JSON.stringify({ type: "cancelSession", code: createdSessionId })
+      JSON.stringify({ type: "cancelSession", code: createdSessionId }),
     );
     createdSessionId = null;
   } else if (joinedSessionId) {
     console.log("Left Session of code: " + joinedSessionId);
     socket.send(
-      JSON.stringify({ type: "leaveSession", code: joinedSessionId })
+      JSON.stringify({ type: "leaveSession", code: joinedSessionId }),
     );
     joinedSessionId = null;
   }
