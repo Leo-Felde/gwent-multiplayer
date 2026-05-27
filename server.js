@@ -1,5 +1,8 @@
+require("dotenv").config();
 const WebSocket = require("ws");
-const { WS_HOST, WS_PORT } = require("./config.js");
+
+const WS_HOST = process.env.ADDRESS ?? "localhost";
+const WS_PORT = process.env.PORT ?? "8080";
 
 const wss = new WebSocket.Server({ port: WS_PORT, host: WS_HOST });
 
@@ -20,6 +23,11 @@ function generateCode(length = 4) {
 // How long to wait for reconnection before deleting session (ms).
 // Match client's reconnect attempts: 5 attempts * 3000ms = 15000ms; give a small buffer.
 const RECONNECT_WAIT_MS = 20000;
+
+wss.on("listening", () => {
+  const address = wss.address();
+  console.log(`WebSocket server bound to:`, address);
+});
 
 wss.on("connection", (ws) => {
   ws.on("message", (message) => {

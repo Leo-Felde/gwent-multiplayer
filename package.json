@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "ws": "^8.18.0"
   }
 }
