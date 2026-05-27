@@ -91,8 +91,8 @@ socket.onmessage = async (event) => {
 
     // Game-start
     case "start":
-      console.log("---------------------");
-      console.log("Match start");
+      console.log("----------==o==----------");
+      console.log("Match start!");
 
       game.startRound();
       tocar("game_start", false);
@@ -162,13 +162,10 @@ socket.onmessage = async (event) => {
       );
 
     case "monstersKeepCard":
-      console.log("monstersKeepCard", data.card);
-      console.log(board.row);
       const keptCard = board
         .getRow(data.card, data.card.row, player_op)
         .findCard((c) => c.filename === data.card.filename);
       if (!keptCard) return;
-      console.log("keptCard", keptCard);
       keptCard.noRemove = true;
       game.roundStart.push(async () => {
         await ui.notification("monsters", 1200);
@@ -484,8 +481,8 @@ class CardContainer {
   }
 
   // Adds a card to a pre-sorted CardContainer
-  addCardSorted(card) {
-    let i = this.getSortedIndex(card);
+  addCardSorted(card, index) {
+    let i = index ?? this.getSortedIndex(card);
     this.cards.splice(i, 0, card);
     return i;
   }
@@ -769,11 +766,12 @@ class Row extends CardContainer {
 
   // Override
   async addCard(card) {
+    let index = undefined;
     if (card.isSpecial()) {
       this.special = card;
       this.elem_special.appendChild(card.elem);
     } else {
-      let index = this.addCardSorted(card);
+      index = this.addCardSorted(card);
       this.addCardElement(card, index);
       this.resize();
     }
@@ -782,6 +780,7 @@ class Row extends CardContainer {
     card.elem.classList.add("noclick");
     await sleep(600);
     this.updateScore();
+    return index;
   }
 
   // Override
@@ -1362,7 +1361,6 @@ class Game {
 
   // Starts a new turn. Enables client interraction in client's turn.
   async startTurn() {
-    console.log("---------------\nstartTurn");
     await this.runEffects(this.turnStart);
     if (!this.currPlayer.opponent().passed) {
       this.currPlayer = this.currPlayer.opponent();
@@ -1410,7 +1408,7 @@ class Game {
 
     await this.runEffects(this.roundEnd);
     if (player_op.deck.faction === "monsters") {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
     board.row.forEach((row) => row.clear());
     weather.clearWeather();
@@ -1446,20 +1444,20 @@ class Game {
     }
 
     endScreen.children[0].className = "";
-    console.log("---------------------");
+    console.log("----------==o==----------");
     if (player_op.health <= 0 && player_me.health <= 0) {
       tocar("");
       endScreen.getElementsByTagName("p")[0].classList.remove("hide");
       endScreen.children[0].classList.add("end-draw");
-      console.log("Game over || Draw");
+      console.log("Game over! || Draw");
     } else if (player_op.health === 0) {
       tocar("game_win", true);
       endScreen.children[0].classList.add("end-win");
-      console.log("Game over || Victory");
+      console.log("Game over! || Victory");
     } else {
       endScreen.children[0].classList.add("end-lose");
       endScreen.children[0].classList.add("end-lose");
-      console.log("Game over || Victory");
+      console.log("Game over! || Victory");
     }
 
     fadeIn(endScreen, 300);
@@ -2295,6 +2293,7 @@ class Carousel {
     const actionString = this.action.toString();
     tocar("redraw", false);
     const resp = await this.action(this.container, this.indices[this.index]);
+    console.log("resp", resp);
     if (
       actionString === "(c, i) => wrapper.card=c.cards[i]" ||
       actionString === "(c,i) => newCard = c.cards[i]"
@@ -2309,14 +2308,18 @@ class Carousel {
         );
       }, 1000);
     } else if (actionString.includes("board.toGrave")) {
-      setTimeout(() => {
-        socket.send(
-          JSON.stringify({ type: "removeCardHand", index: this.index }),
-        );
-      }, 1000);
+      socket.send(
+        JSON.stringify({ type: "removeCardHand", index: this.index }),
+      );
     } else if (actionString.includes("board.toHand")) {
       setTimeout(() => {
-        socket.send(JSON.stringify({ type: "addCardHand", index: this.index }));
+        socket.send(
+          JSON.stringify({
+            type: "addCardHand",
+            cardIndex: this.index,
+            toIndex: resp,
+          }),
+        );
       }, 1000);
     }
     if (this.isLastSelection() && !this.cancelled) return this.exit();
