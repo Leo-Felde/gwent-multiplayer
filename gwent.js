@@ -2293,7 +2293,6 @@ class Carousel {
     const actionString = this.action.toString();
     tocar("redraw", false);
     const resp = await this.action(this.container, this.indices[this.index]);
-    console.log("resp", resp);
     if (
       actionString === "(c, i) => wrapper.card=c.cards[i]" ||
       actionString === "(c,i) => newCard = c.cards[i]"

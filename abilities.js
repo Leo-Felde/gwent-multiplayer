@@ -130,7 +130,6 @@ var ability_dict = {
 				return;
 			let wrapper = {card : null};
 			if (card.holder.controller instanceof ControllerOponent) {
-				console.log("Oponent has played a medic, wait for him to chose which card to respawn")
 				// Wait for the oponent to choose which card to revive
 				wrapper.card = await new Promise((resolve) => {
 					const handleMessage = async (event) => {
@@ -278,8 +277,8 @@ var ability_dict = {
 					const handleMessage = async (event) => {
 						const data = JSON.parse(event.data);
 
-						if (data.type === "addCardHand") {
-							const drawnCard = grave.cards.filter(c => c.isUnit())[data.index]
+						if (data.type === "addCardHandGrave") {
+							const drawnCard = grave.cards.filter(c => c.isUnit() && c.filename === data.card)[0]
 							if (drawnCard) {
 								drawnCard.holder = player_op;
 								resolve(drawnCard);
@@ -288,7 +287,6 @@ var ability_dict = {
 					}
 					socket.addEventListener('message', handleMessage);
 				});
-				newCard.holder = player_op;
 				board.toHand(newCard, grave);
 				return;
 			}
@@ -297,7 +295,18 @@ var ability_dict = {
 			await ui.queueCarousel(grave, 1, (c,i) => {
 				let newCard = c.cards[i];
 				newCard.holder = card.holder;
-				board.toHand(newCard, grave);
+				grave.removeCard(newCard);
+				newCard.holder.hand.cards.push(newCard);
+				newCard.holder.hand.addCardElement(newCard, newCard.holder.hand.cards.length - 1);
+				newCard.holder.hand.resize();
+				setTimeout(() => {
+						socket.send(
+							JSON.stringify({
+								type: "addCardHandGrave",
+								card: newCard.filename,
+							}),
+						);
+				}, 1000);
 			}, c => c.isUnit(), true);
 		},
 		weight: (card, ai, max, data) => ai.weightMedic(data, 0, card.holder.opponent())
@@ -383,12 +392,14 @@ var ability_dict = {
 				card.holder.hand.cards.push(card);
 				card.holder.hand.addCardElement(card, card.holder.hand.cards.length - 1);
 				card.holder.hand.resize();
-        socket.send(
-          JSON.stringify({
-            type: "addCardHand",
-            index: i,
-          }),
-        );
+				setTimeout(() => {
+					socket.send(
+						JSON.stringify({
+							type: "addCardHand",
+							index: i,
+						}),
+					);
+				}, 1000);
 			}, () => true, true);
 		},
 		weight: (card, ai) => {
